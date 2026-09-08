@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tanaj Story Intro</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+
+      font-family:
+        "JetBrains Mono",
+        "Fira Code",
+        "Cascadia Code",
+        "SF Mono",
+        Consolas,
+        monospace;
+
+      background:
+        radial-gradient(circle at 16% 10%, rgba(255, 214, 70, 0.32) 0%, transparent 30%),
+        radial-gradient(circle at 88% 88%, rgba(90, 210, 255, 0.28) 0%, transparent 34%),
+        linear-gradient(180deg, #0f8f8f 0%, #0b73a0 48%, #075f8a 100%);
+
+      color: #ffffff;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: 0.35;
+    }
+
+    .side-ornament {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      color: #ffe27a;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .side-ornament.left { left: 36px; }
+    .side-ornament.right { right: 36px; }
+
+    .ornament-mark {
+      width: 10px;
+      height: 10px;
+      background: #ffd000;
+      box-shadow:
+        1px 1px 0 #8a6a00,
+        inset 1px 1px 0 #fff3a8;
+    }
+
+    .ornament-line {
+      width: 2px;
+      height: 72px;
+      background: linear-gradient(to bottom, transparent, #ffd000, transparent);
+    }
+
+    .ornament-glyph {
+      font-size: 18px;
+      color: #ffd000;
+      text-shadow: 0 0 12px rgba(255, 208, 0, 0.45);
+      animation: glyphPulse 2.8s ease-in-out infinite;
+    }
+
+    .side-ornament.right .ornament-glyph {
+      animation-delay: 1.4s;
+    }
+
+    .ornament-text {
+      writing-mode: vertical-rl;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    .side-ornament.left .ornament-text {
+      transform: rotate(180deg);
+    }
+
+    .corner-frame {
+      position: fixed;
+      width: 54px;
+      height: 54px;
+      z-index: 1;
+      pointer-events: none;
+      border-color: rgba(255, 208, 0, 0.72);
+      border-style: solid;
+    }
+
+    .corner-frame.tl { top: 28px; left: 28px; border-width: 2px 0 0 2px; }
+    .corner-frame.tr { top: 28px; right: 28px; border-width: 2px 2px 0 0; }
+    .corner-frame.bl { bottom: 28px; left: 28px; border-width: 0 0 2px 2px; }
+    .corner-frame.br { bottom: 28px; right: 28px; border-width: 0 2px 2px 0; }
+
+    .start-screen {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 40px;
+      max-width: 1120px;
+      animation: fadeIn 0.9s ease;
+      transition:
+        opacity 0.55s ease,
+        transform 0.55s ease,
+        filter 0.55s ease;
+    }
+
+    .start-screen.hide {
+      opacity: 0;
+      transform: scale(0.94) translateY(-18px);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .start-kicker {
+      font-size: clamp(14px, 1.4vw, 18px);
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: #ffd000;
+      margin-bottom: 22px;
+    }
+
+    .start-title {
+      font-size: clamp(52px, 7.5vw, 88px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-shadow: 0 3px 0 rgba(0, 40, 60, 0.28);
+    }
+
+    .start-subtitle {
+      font-size: clamp(16px, 1.8vw, 22px);
+      letter-spacing: 0.08em;
+      line-height: 1.5;
+      color: #e8fbff;
+      margin-bottom: 42px;
+    }
+
+    .start-btn {
+      position: relative;
+      isolation: isolate;
+      overflow: visible;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid #fff6b0;
+      border-right-color: #9a7400;
+      border-bottom-color: #9a7400;
+      border-radius: 0;
+      padding: 17px 32px 17px 36px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      background: #ffd000;
+      color: #1a1400;
+      cursor: pointer;
+      box-shadow:
+        inset 1px 1px 0 #fff7c2,
+        0 10px 24px rgba(0, 30, 40, 0.28);
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      background: #ffe34d;
+    }
+
+    .start-btn:active { transform: scale(0.97); }
+
+    .start-btn.launching {
+      animation: btnLaunch 0.5s ease forwards;
+      pointer-events: none;
+    }
+
+    .plane-icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      flex-shrink: 0;
+      fill: currentColor;
+      transform-origin: 20% 80%;
+      filter: drop-shadow(0 2px 0 rgba(90, 70, 0, 0.18));
+    }
+
+    .start-btn:hover .plane-icon {
+      animation: planeTakeoff 1.4s cubic-bezier(0.22, 0.82, 0.28, 1) infinite;
+    }
+
+    .start-btn.launching .plane-icon {
+      animation: planeLaunch 0.75s ease-in forwards;
+    }
+
+    .sky-plane {
+      position: fixed;
+      left: 12%;
+      top: 58%;
+      z-index: 40;
+      width: 72px;
+      height: 72px;
+      fill: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 18px rgba(0, 30, 40, 0.35));
+    }
+
+    .sky-plane.fly-start {
+      animation: skyFlyStart 1.15s cubic-bezier(0.18, 0.7, 0.22, 1) forwards;
+    }
+
+    .sky-plane.fly-away {
+      width: 96px;
+      height: 96px;
+      fill: #ffd000;
+      animation: skyFlyAway 2.2s cubic-bezier(0.18, 0.7, 0.22, 1) forwards;
+    }
+
+    .start-btn .btn-rings,
+    .start-btn .btn-rings::before,
+    .start-btn .btn-rings::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border: 2px solid rgba(255, 208, 0, 0.85);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .start-btn.launching .btn-rings,
+    .start-btn.launching .btn-rings::before,
+    .start-btn.launching .btn-rings::after {
+      animation: ringExpand 0.7s ease-out forwards;
+    }
+
+    .start-btn.launching .btn-rings::before { animation-delay: 0.08s; }
+    .start-btn.launching .btn-rings::after { animation-delay: 0.16s; }
+
+    /* =========================
+       MAC TERMINAL — WHITE
+    ========================= */
+
+    .window-stage {
+      display: none;
+      position: relative;
+      z-index: 4;
+      width: min(1080px, 90vw);
+    }
+
+    .window-stage.show {
+      display: block;
+      animation: windowOpen 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .window-stage.closing {
+      animation: windowClose 0.7s ease forwards;
+    }
+
+    .mac-terminal {
+      overflow: hidden;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow:
+        0 40px 100px rgba(0, 20, 40, 0.35),
+        0 0 0 1px rgba(255, 208, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    }
+
+    .mac-titlebar {
+      position: relative;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: linear-gradient(180deg, #f6f7f9 0%, #ebecef 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .tl {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.18);
+    }
+
+    .tl.red { background: #ff5f57; }
+    .tl.yellow { background: #febc2e; }
+    .tl.green { background: #28c840; }
+
+    .mac-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+
+    .mac-title .sigil {
+      color: #d4a000;
+      margin-right: 8px;
+    }
+
+    .mac-path {
+      margin-left: auto;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #9aa3b2;
+      z-index: 2;
+    }
+
+    .terminal-body {
+      min-height: 620px;
+      padding: 36px 56px 42px;
+      background: #ffffff;
+      color: #17171d;
+    }
+
+    .system-line {
+      min-height: 30px;
+      margin: 0 0 26px;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      color: #0077aa;
+    }
+
+    .prompt {
+      color: #c99600;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 10px;
+      color: #c99600;
+      letter-spacing: 0.2em;
+    }
+
+    .load-symbol {
+      display: inline-block;
+      animation: symbolSpin 1.2s steps(8) infinite;
+    }
+
+    .progress-track {
+      width: min(420px, 100%);
+      height: 8px;
+      margin: 6px 0 28px;
+      border: 1px solid rgba(201, 150, 0, 0.45);
+      background: #f3f4f6;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .progress-track.show {
+      animation: fadeIn 0.45s ease forwards;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffd000, #00a8e0);
+      box-shadow: 0 0 10px rgba(255, 208, 0, 0.35);
+      transition: width 0.35s ease;
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      margin-top: 8px;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      column-gap: 48px;
+      align-items: baseline;
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .info-row.visible {
+      animation: rowReveal 0.7s ease forwards;
+    }
+
+    .label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      color: #0077aa;
+    }
+
+    .label .glyph {
+      color: #c99600;
+      margin-right: 8px;
+      letter-spacing: 0;
+    }
+
+    .value {
+      font-size: clamp(18px, 2vw, 26px);
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: 0.06em;
+      color: #17171d;
+    }
+
+    .university {
+      margin-top: 10px;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #1f8a4c;
+    }
+
+    .divider {
+      height: 1px;
+      margin: 42px 0 34px;
+      opacity: 0;
+      background: linear-gradient(
+        to right,
+        transparent,
+        #ffd000 12%,
+        #00a8e0 50%,
+        #ffd000 88%,
+        transparent
+      );
+    }
+
+    .divider.visible {
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .question-block {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+
+    .question-block.visible {
+      animation: rowReveal 0.75s ease forwards;
+    }
+
+    .question-label {
+      margin-bottom: 13px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      color: #0077aa;
+    }
+
+    .question-label .glyph {
+      color: #c99600;
+      margin-right: 8px;
+      letter-spacing: 0;
+    }
+
+    .question {
+      font-size: clamp(22px, 2.8vw, 36px);
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: 0.04em;
+      color: #111116;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.5em;
+      height: 0.11em;
+      margin-left: 8px;
+      vertical-align: 0.13em;
+      background: #c99600;
+      animation: blink 0.8s infinite;
+    }
+
+    .memory-line {
+      margin-top: 34px;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      color: #0077aa;
+      opacity: 0;
+    }
+
+    .memory-line.visible {
+      animation: fadeIn 0.7s ease forwards;
+    }
+
+    .memory-found {
+      font-weight: 700;
+      color: #1f8a4c;
+    }
+
+    .enter-hint {
+      margin-top: 28px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: #8a8f98;
+      opacity: 0;
+    }
+
+    .enter-hint.show {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .enter-hint kbd {
+      display: inline-block;
+      padding: 3px 10px;
+      margin: 0 4px;
+      border: 1px solid #c9ced6;
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: #f4f5f7;
+      color: #17171d;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .enter-hint .mark {
+      color: #c99600;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 16px;
+      background: #f4f5f7;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      color: #6b7280;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .status-chip {
+      color: #4b5563;
+    }
+
+    .status-chip .mark {
+      color: #c99600;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes btnLaunch {
+      0% { transform: scale(1); }
+      22% { transform: scale(0.92); }
+      100% { transform: scale(1.06); opacity: 0; }
+    }
+
+    @keyframes ringExpand {
+      0% { opacity: 0.7; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2.4); }
+    }
+
+    @keyframes windowOpen {
+      0% {
+        opacity: 0;
+        transform: scale(0.18, 0.08) translateY(40px);
+      }
+      58% {
+        opacity: 1;
+        transform: scale(1.02, 1.01) translateY(0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes windowClose {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.12, 0.05) translateY(30px);
+      }
+    }
+
+    @keyframes rowReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    @keyframes glyphPulse {
+      0%, 100% { opacity: 0.55; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.12); }
+    }
+
+    @keyframes symbolSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes planeTakeoff {
+      0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+      16% { transform: translate(8px, 3px) rotate(10deg) scale(1.05); }
+      52% { transform: translate(78px, -52px) rotate(-24deg) scale(1.18); opacity: 1; }
+      78% { transform: translate(138px, -92px) rotate(-34deg) scale(0.92); opacity: 0; }
+      79% { transform: translate(-10px, 12px) rotate(18deg) scale(0.55); opacity: 0; }
+      100% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes planeLaunch {
+      0% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+      100% { transform: translate(220px, -160px) rotate(-38deg) scale(1.3); opacity: 0; }
+    }
+
+    @keyframes skyFlyStart {
+      0% { opacity: 1; transform: translate(-20px, 10px) rotate(-6deg) scale(0.7); }
+      38% { opacity: 1; transform: translate(160px, -150px) rotate(-22deg) scale(1.15); }
+      100% { opacity: 0; transform: translate(460px, -340px) rotate(-40deg) scale(0.95); }
+    }
+
+    @keyframes skyFlyAway {
+      0% {
+        opacity: 1;
+        left: 8%;
+        top: 62%;
+        transform: rotate(-8deg) scale(0.85);
+      }
+      45% {
+        opacity: 1;
+        left: 42%;
+        top: 34%;
+        transform: rotate(-18deg) scale(1.15);
+      }
+      100% {
+        opacity: 0;
+        left: 108%;
+        top: -8%;
+        transform: rotate(-32deg) scale(1.05);
+      }
+    }
+
+    /* =========================
+       JOURNEY SCREEN
+    ========================= */
+
+    .journey-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 40px;
+      pointer-events: none;
+    }
+
+    .journey-screen.show {
+      display: flex;
+      animation: journeyReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .journey-kicker {
+      font-size: clamp(14px, 1.5vw, 18px);
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #ffd000;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.35s forwards;
+    }
+
+    .journey-title {
+      font-size: clamp(48px, 9vw, 110px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1.05;
+      color: #ffffff;
+      text-shadow:
+        0 4px 0 rgba(0, 40, 60, 0.25),
+        0 0 40px rgba(255, 208, 0, 0.18);
+    }
+
+    .journey-title .dot {
+      display: inline-block;
+      color: #ffd000;
+      opacity: 0;
+      animation: journeyDotPulse 1.5s infinite;
+    }
+
+    .journey-title .dot:nth-child(1) { animation-delay: 0s; }
+    .journey-title .dot:nth-child(2) { animation-delay: 0.3s; }
+    .journey-title .dot:nth-child(3) { animation-delay: 0.6s; }
+
+    .journey-sub {
+      margin-top: 28px;
+      font-size: clamp(15px, 1.7vw, 20px);
+      letter-spacing: 0.16em;
+      color: #e8fbff;
+      opacity: 0;
+      animation: fadeIn 0.9s ease 0.7s forwards;
+    }
+
+    @keyframes journeyReveal {
+      0% {
+        opacity: 0;
+        transform: scale(0.88) translateY(24px);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes journeyDotPulse {
+      0%, 15% { opacity: 0; }
+      30%, 70% { opacity: 1; }
+      85%, 100% { opacity: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .side-ornament,
+      .corner-frame {
+        display: none;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .start-screen { padding: 0 24px; }
+      .start-kicker { letter-spacing: 0.22em; }
+      .start-title { font-size: clamp(48px, 12vw, 72px); }
+      .terminal-body {
+        padding: 28px 18px 34px;
+        min-height: 580px;
+      }
+      .info-row {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+      }
+      .label { font-size: 11px; }
+      .value { font-size: 18px; }
+      .question { font-size: 22px; }
+      .mac-path { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="corner-frame tl"></div>
+  <div class="corner-frame tr"></div>
+  <div class="corner-frame bl"></div>
+  <div class="corner-frame br"></div>
+
+  <aside class="side-ornament left" aria-hidden="true">
+    <span class="ornament-mark"></span>
+    <span class="ornament-line"></span>
+    <span class="ornament-glyph">✶</span>
+    <span class="ornament-text">curiosity.sh</span>
+    <span class="ornament-line"></span>
+    <span class="ornament-glyph">⌘</span>
+    <span class="ornament-mark"></span>
+  </aside>
+
+  <aside class="side-ornament right" aria-hidden="true">
+    <span class="ornament-mark"></span>
+    <span class="ornament-line"></span>
+    <span class="ornament-glyph">◈</span>
+    <span class="ornament-text">chapter_00</span>
+    <span class="ornament-line"></span>
+    <span class="ornament-glyph">✦</span>
+    <span class="ornament-mark"></span>
+  </aside>
+
+  <section class="start-screen" id="startScreen">
+    <div class="start-kicker">A story about curiosity</div>
+    <h1 class="start-title">Ready?</h1>
+    <p class="start-subtitle">Let's see where it all began.</p>
+    <button class="start-btn" id="startButton">
+      <span class="btn-rings"></span>
+      Let's Start!
+      <svg class="plane-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21.5 3.2 2.8 11.4c-.7.3-.6 1.3.1 1.5l5.7 1.5 1.7 6.2c.2.7 1.1.8 1.5.2L21.5 3.2zM10.3 13.3l8.8-7.5-6.4 9.8-1.2-3.8z"/>
+      </svg>
+    </button>
+  </section>
+
+  <svg class="sky-plane" id="skyPlane" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21.5 3.2 2.8 11.4c-.7.3-.6 1.3.1 1.5l5.7 1.5 1.7 6.2c.2.7 1.1.8 1.5.2L21.5 3.2zM10.3 13.3l8.8-7.5-6.4 9.8-1.2-3.8z"/>
+  </svg>
+
+  <section class="journey-screen" id="journeyScreen" aria-hidden="true">
+    <div class="journey-kicker">a new chapter</div>
+    <h1 class="journey-title">
+      Journey Start<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </h1>
+    <p class="journey-sub">curiosity is taking off</p>
+  </section>
+
+  <section class="window-stage" id="terminalWrapper">
+    <div class="mac-terminal">
+
+      <div class="mac-titlebar">
+        <div class="traffic-lights">
+          <span class="tl red"></span>
+          <span class="tl yellow"></span>
+          <span class="tl green"></span>
+        </div>
+        <div class="mac-title">
+          <span class="sigil">⌘</span> tanaj — zsh — 80×24
+        </div>
+        <div class="mac-path">~/story</div>
+      </div>
+
+      <div class="terminal-body">
+
+        <div class="system-line" id="systemLine"></div>
+
+        <div class="progress-track" id="progressTrack">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="info-list">
+          <div class="info-row" id="row1">
+            <div class="label"><span class="glyph">◈</span>NAME</div>
+            <div class="value">Tanaj Afnan</div>
+          </div>
+
+          <div class="info-row" id="row2">
+            <div class="label"><span class="glyph">✦</span>FROM</div>
+            <div class="value">Dhaka, Bangladesh</div>
+          </div>
+
+          <div class="info-row" id="row4">
+            <div class="label"><span class="glyph">✶</span>NEXT CHAPTER</div>
+            <div class="value">
+              Foundations in Data Science
+              <div class="university">Chemnitz University of Technology</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider" id="divider"></div>
+
+        <div class="question-block" id="questionBlock">
+          <div class="question-label"><span class="glyph">⌘</span>QUESTION</div>
+          <div class="question">
+            Where does curiosity lead?<span class="cursor"></span>
+          </div>
+        </div>
+
+        <div class="memory-line" id="memoryLine"></div>
+
+        <div class="enter-hint" id="enterHint">
+          <span class="mark">❯</span> press <kbd>Enter</kbd> to continue
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <span class="status-chip"><span class="mark">◈</span> ~/story/tanaj</span>
+        <span class="status-chip" id="statusText">ready</span>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    const startButton = document.getElementById("startButton");
+    const startScreen = document.getElementById("startScreen");
+    const terminalWrapper = document.getElementById("terminalWrapper");
+    const systemLine = document.getElementById("systemLine");
+    const row1 = document.getElementById("row1");
+    const row2 = document.getElementById("row2");
+    const row4 = document.getElementById("row4");
+    const divider = document.getElementById("divider");
+    const questionBlock = document.getElementById("questionBlock");
+    const memoryLine = document.getElementById("memoryLine");
+    const statusText = document.getElementById("statusText");
+    const skyPlane = document.getElementById("skyPlane");
+    const progressTrack = document.getElementById("progressTrack");
+    const progressFill = document.getElementById("progressFill");
+    const enterHint = document.getElementById("enterHint");
+    const journeyScreen = document.getElementById("journeyScreen");
+
+    let storyStarted = false;
+    let canExit = false;
+    let exiting = false;
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    let audioContext;
+
+    function playKeyboardSound() {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(
+          100 + Math.random() * 45,
+          audioContext.currentTime
+        );
+
+        gain.gain.setValueAtTime(0.016, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          audioContext.currentTime + 0.025
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.025);
+      } catch (error) {
+        console.log("Keyboard audio unavailable.");
+      }
+    }
+
+    async function typeText(element, text, speed = 55) {
+      element.textContent = "";
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text.charAt(i);
+        playKeyboardSound();
+        await delay(speed);
+      }
+    }
+
+    function setProgress(pct) {
+      progressFill.style.width = pct + "%";
+    }
+
+    async function beginStory() {
+      if (storyStarted) return;
+      storyStarted = true;
+
+      startButton.classList.add("launching");
+      startScreen.classList.add("hide");
+      skyPlane.classList.remove("fly-away");
+      skyPlane.classList.add("fly-start");
+
+      await delay(650);
+      startScreen.style.display = "none";
+      skyPlane.classList.remove("fly-start");
+
+      terminalWrapper.classList.add("show");
+      statusText.textContent = "opening…";
+      await delay(1100);
+
+      await typeText(systemLine, "> initializing story…", 58);
+      await delay(600);
+
+      systemLine.innerHTML = `
+        <span class="prompt">❯</span> loading profile
+        <span class="loading"><span class="load-symbol">◷</span></span>
+      `;
+      statusText.textContent = "loading profile";
+      progressTrack.classList.add("show");
+
+      setProgress(18);
+      await delay(700);
+      setProgress(42);
+      await delay(800);
+      setProgress(67);
+      await delay(750);
+      setProgress(88);
+      await delay(650);
+      setProgress(100);
+      await delay(500);
+
+      row1.classList.add("visible");
+      playKeyboardSound();
+      await delay(900);
+
+      row2.classList.add("visible");
+      playKeyboardSound();
+      await delay(1000);
+
+      row4.classList.add("visible");
+      playKeyboardSound();
+      await delay(1200);
+
+      await typeText(systemLine, "> profile loaded ✓", 52);
+      statusText.textContent = "ready";
+      await delay(800);
+
+      divider.classList.add("visible");
+      await delay(700);
+
+      questionBlock.classList.add("visible");
+      await delay(1500);
+
+      memoryLine.classList.add("visible");
+      statusText.textContent = "searching memory";
+      await typeText(memoryLine, "> Searching memory…", 62);
+      await delay(1200);
+
+      memoryLine.innerHTML =
+        '<span class="memory-found"><span class="prompt">❯</span> Found: childhood/_ ✦</span>';
+      statusText.textContent = "press Enter";
+      playKeyboardSound();
+
+      await delay(500);
+      enterHint.classList.add("show");
+      canExit = true;
+    }
+
+    async function exitStory() {
+      if (!canExit || exiting) return;
+      exiting = true;
+      canExit = false;
+
+      statusText.textContent = "closing…";
+      enterHint.innerHTML = '<span class="mark">❯</span> launching…';
+      playKeyboardSound();
+
+      await delay(280);
+
+      terminalWrapper.classList.remove("show");
+      terminalWrapper.classList.add("closing");
+
+      await delay(420);
+
+      skyPlane.classList.remove("fly-start", "fly-away");
+      void skyPlane.offsetWidth;
+      skyPlane.classList.add("fly-away");
+
+      await delay(900);
+      terminalWrapper.style.display = "none";
+
+      await delay(500);
+      journeyScreen.classList.add("show");
+      journeyScreen.setAttribute("aria-hidden", "false");
+    }
+
+    startButton.addEventListener("click", beginStory);
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        exitStory();
+      }
+    });
+  </script>
+
+</body>
+</html>
