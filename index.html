@@ -405,7 +405,7 @@
       width: 0%;
       background: linear-gradient(90deg, #ffd000, #00a8e0);
       box-shadow: 0 0 10px rgba(255, 208, 0, 0.35);
-      transition: width 0.35s ease;
+      transition: width 0.18s ease;
     }
 
     .info-list {
@@ -745,7 +745,8 @@
     .journey-sub {
       margin-top: 28px;
       font-size: clamp(15px, 1.7vw, 20px);
-      letter-spacing: 0.16em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
       color: #e8fbff;
       opacity: 0;
       animation: fadeIn 0.9s ease 0.7s forwards;
@@ -842,11 +843,11 @@
   </svg>
 
   <section class="journey-screen" id="journeyScreen" aria-hidden="true">
-    <div class="journey-kicker">a new chapter</div>
+    <div class="journey-kicker">next destination loading</div>
     <h1 class="journey-title">
-      Journey Start<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      Start<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </h1>
-    <p class="journey-sub">curiosity is taking off</p>
+    <p class="journey-sub">HEADING TOWARD WHAT COMES NEXT</p>
   </section>
 
   <section class="window-stage" id="terminalWrapper">
@@ -974,7 +975,7 @@
       }
     }
 
-    async function typeText(element, text, speed = 55) {
+    async function typeText(element, text, speed = 22) {
       element.textContent = "";
       for (let i = 0; i < text.length; i++) {
         element.textContent += text.charAt(i);
@@ -996,16 +997,16 @@
       skyPlane.classList.remove("fly-away");
       skyPlane.classList.add("fly-start");
 
-      await delay(650);
+      await delay(280);
       startScreen.style.display = "none";
       skyPlane.classList.remove("fly-start");
 
       terminalWrapper.classList.add("show");
       statusText.textContent = "opening…";
-      await delay(1100);
+      await delay(380);
 
-      await typeText(systemLine, "> initializing story…", 58);
-      await delay(600);
+      await typeText(systemLine, "> initializing story…", 20);
+      await delay(160);
 
       systemLine.innerHTML = `
         <span class="prompt">❯</span> loading profile
@@ -1014,50 +1015,48 @@
       statusText.textContent = "loading profile";
       progressTrack.classList.add("show");
 
-      setProgress(18);
-      await delay(700);
-      setProgress(42);
-      await delay(800);
-      setProgress(67);
-      await delay(750);
-      setProgress(88);
-      await delay(650);
+      setProgress(25);
+      await delay(160);
+      setProgress(55);
+      await delay(180);
+      setProgress(80);
+      await delay(160);
       setProgress(100);
-      await delay(500);
+      await delay(140);
 
       row1.classList.add("visible");
       playKeyboardSound();
-      await delay(900);
+      await delay(220);
 
       row2.classList.add("visible");
       playKeyboardSound();
-      await delay(1000);
+      await delay(240);
 
       row4.classList.add("visible");
       playKeyboardSound();
-      await delay(1200);
+      await delay(280);
 
-      await typeText(systemLine, "> profile loaded ✓", 52);
+      await typeText(systemLine, "> profile loaded ✓", 18);
       statusText.textContent = "ready";
-      await delay(800);
+      await delay(200);
 
       divider.classList.add("visible");
-      await delay(700);
+      await delay(180);
 
       questionBlock.classList.add("visible");
-      await delay(1500);
+      await delay(350);
 
       memoryLine.classList.add("visible");
       statusText.textContent = "searching memory";
-      await typeText(memoryLine, "> Searching memory…", 62);
-      await delay(1200);
+      await typeText(memoryLine, "> Searching memory…", 22);
+      await delay(280);
 
       memoryLine.innerHTML =
         '<span class="memory-found"><span class="prompt">❯</span> Found: childhood/_ ✦</span>';
       statusText.textContent = "press Enter";
       playKeyboardSound();
 
-      await delay(500);
+      await delay(160);
       enterHint.classList.add("show");
       canExit = true;
     }
