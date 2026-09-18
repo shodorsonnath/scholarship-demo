@@ -6,7 +6,7 @@
   <title>curiosity</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Nunito:wght@600;700;800&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet" />
   <style>
     :root {
       --paper: #fffdf8;
@@ -22,7 +22,7 @@
       overflow: hidden;
       background: #fff;
       color: var(--ink);
-      font-family: Nunito, system-ui, sans-serif;
+      font-family: system-ui, sans-serif;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -174,67 +174,10 @@
       filter: drop-shadow(0 8px 8px rgba(80, 70, 50, 0.12));
     }
 
-    .ui {
-      position: absolute;
-      left: 50%;
-      bottom: max(28px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      display: flex;
-      gap: 14px;
-      z-index: 8;
-      opacity: 0;
-    }
-
-    .sticker {
-      width: 56px;
-      height: 56px;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      font-family: Nunito, sans-serif;
-      font-weight: 800;
-      color: #4a3f35;
-      box-shadow:
-        0 8px 0 rgba(0, 0, 0, 0.04),
-        0 10px 18px rgba(90, 70, 40, 0.12);
-      transition: transform 0.2s ease, filter 0.2s ease;
-    }
-
-    .sticker:hover { transform: translateY(-3px) rotate(-4deg) scale(1.04); }
-    .sticker:active { transform: translateY(2px) scale(0.97); }
-
-    .sticker.play { background: #c8efd4; transform: rotate(-6deg); }
-    .sticker.again { background: #ffe3a3; transform: rotate(5deg); }
-    .sticker.wide { background: #d7e7ff; transform: rotate(-2deg); }
-
-    .sticker svg { width: 22px; height: 22px; fill: #3d342c; }
-
-    .hint {
-      position: absolute;
-      left: 50%;
-      bottom: 98px;
-      transform: translateX(-50%);
-      font-family: Caveat, cursive;
-      font-size: 22px;
-      color: #b3a496;
-      opacity: 0;
-      z-index: 8;
-      pointer-events: none;
-    }
-
-    .paused .flyer { animation-play-state: paused !important; }
-
     @keyframes dropNote {
       0% { opacity: 0; transform: translate(-50%, -62%) rotate(-8deg); }
       70% { opacity: 1; transform: translate(-50%, -48%) rotate(-2.4deg); }
       100% { opacity: 1; transform: translate(-50%, -50%) rotate(-3.5deg); }
-    }
-
-    @keyframes popIn {
-      0% { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.86); }
-      100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     }
 
     @keyframes writeLetter {
@@ -311,7 +254,7 @@
       .st2 { transform: translate(84vw, 40vh); }
       .env { transform: translate(8vw, 42vh) rotate(-12deg); }
       .flyer { animation: none !important; opacity: 0.9; }
-      .note, .word span, .doodle, .little-note, .ui, .hint { opacity: 1 !important; }
+      .note, .word span, .doodle, .little-note { opacity: 1 !important; }
       .note { transform: translate(-50%, -50%) rotate(-3.5deg) !important; }
       .pencil { display: none; }
     }
@@ -398,25 +341,11 @@
         </svg>
       </div>
     </div>
-
-    <div class="hint" id="hint">tap a sticker, or press space</div>
-    <div class="ui" id="ui">
-      <button class="sticker play" id="btnPlay" title="Play / Pause" aria-label="Play or pause">
-        <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <button class="sticker again" id="btnAgain" title="Again" aria-label="Restart">
-        <svg viewBox="0 0 24 24"><path d="M12 6V2L7 7l5 5V8c2.8 0 5 2.2 5 5a5 5 0 1 1-5-5z"/></svg>
-      </button>
-      <button class="sticker wide" id="btnFull" title="Fullscreen" aria-label="Fullscreen">
-        <svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3H4zm10-5h5v5h-2V6h-3V4zM4 15h2v3h3v2H4v-5zm14 3h-3v2h5v-5h-2v3z"/></svg>
-      </button>
-    </div>
   </div>
 
   <script>
     (function () {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const autoplay = new URLSearchParams(location.search).get("autoplay") !== "false";
       const word = "curiosity";
       const wordEl = document.getElementById("word");
       const note = document.getElementById("note");
@@ -424,11 +353,6 @@
       const doodle = document.getElementById("doodle");
       const tiny = document.getElementById("tiny");
       const sky = document.getElementById("sky");
-      const ui = document.getElementById("ui");
-      const hint = document.getElementById("hint");
-      const desk = document.getElementById("desk");
-      const btnPlay = document.getElementById("btnPlay");
-      const iconPlay = document.getElementById("iconPlay");
 
       word.split("").forEach((ch) => {
         const s = document.createElement("span");
@@ -436,12 +360,7 @@
         wordEl.appendChild(s);
       });
       const letters = [...wordEl.children];
-
-      let playing = false;
       let timers = [];
-
-      const PLAY = '<path d="M8 5v14l11-7z"/>';
-      const PAUSE = '<path d="M7 5h3v14H7zm7 0h3v14h-3z"/>';
 
       function clearTimers() {
         timers.forEach(clearTimeout);
@@ -450,12 +369,6 @@
 
       function later(ms, fn) {
         timers.push(setTimeout(fn, ms));
-      }
-
-      function setPlaying(on) {
-        playing = on;
-        desk.classList.toggle("paused", !on);
-        iconPlay.innerHTML = on ? PAUSE : PLAY;
       }
 
       function resetVisuals() {
@@ -470,10 +383,6 @@
         tiny.style.opacity = "0";
         pencil.style.opacity = "0";
         pencil.style.transition = "none";
-        ui.style.animation = "none";
-        hint.style.animation = "none";
-        ui.style.opacity = "0";
-        hint.style.opacity = "0";
         sky.className = "sky waiting";
       }
 
@@ -486,9 +395,7 @@
           letters.forEach((el) => (el.style.opacity = "1"));
           doodle.style.opacity = "1";
           tiny.style.opacity = "1";
-          ui.style.opacity = "1";
           sky.className = "sky live";
-          setPlaying(false);
           return;
         }
 
@@ -523,52 +430,11 @@
           doodle.style.opacity = "1";
           tiny.style.opacity = "1";
           sky.className = "sky live";
-          ui.style.animation = "popIn 0.55s cubic-bezier(.2,1.2,.3,1) forwards";
-          hint.style.animation = "popIn 0.55s cubic-bezier(.2,1.2,.3,1) forwards";
-          hint.style.animationDelay = "0.15s";
-          later(2600, () => { hint.style.opacity = "0"; hint.style.animation = "none"; });
-          setPlaying(true);
-          later(10000, start);
+          later(5000, start);
         });
       }
 
-      function toggle() {
-        if (!sky.classList.contains("live") && !reduced) return;
-        setPlaying(!playing);
-      }
-
-      btnPlay.addEventListener("click", toggle);
-      document.getElementById("btnAgain").addEventListener("click", start);
-      document.getElementById("btnFull").addEventListener("click", () => {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-        else document.exitFullscreen().catch(() => {});
-      });
-
-      window.addEventListener("keydown", (e) => {
-        if (e.code === "Space") {
-          e.preventDefault();
-          toggle();
-        } else if (e.key === "r" || e.key === "R") {
-          start();
-        } else if (e.key === "f" || e.key === "F") {
-          if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-          else document.exitFullscreen().catch(() => {});
-        }
-      });
-
-      if (autoplay) start();
-      else {
-        resetVisuals();
-        note.style.opacity = "1";
-        note.style.transform = "translate(-50%, -50%) rotate(-3.5deg)";
-        letters.forEach((el) => (el.style.opacity = "1"));
-        doodle.style.opacity = "1";
-        tiny.style.opacity = "1";
-        ui.style.opacity = "1";
-        hint.style.opacity = "1";
-        sky.className = "sky live";
-        setPlaying(true);
-      }
+      start();
     })();
   </script>
 </body>
