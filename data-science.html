@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover" />
+  <title>Curiosity → Data Science</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --safe-x: 72px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0618;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #stage {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1080px;
+      height: 1920px;
+      margin-left: -540px;
+      margin-top: -960px;
+      overflow: hidden;
+      transform-origin: center center;
+      background: #12081f;
+      will-change: transform;
+    }
+
+    #bgCanvas, #fxCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #fxCanvas { pointer-events: none; z-index: 2; }
+    #bgCanvas { z-index: 0; }
+
+    #camera {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      transform-origin: 50% 50%;
+      will-change: transform;
+      perspective: 1000px;
+    }
+
+    #vignette, #sweep, #grain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    #vignette {
+      background: radial-gradient(ellipse 85% 72% at 50% 50%, transparent 42%, rgba(0, 0, 0, 0.55) 100%);
+    }
+
+    #sweep {
+      z-index: 5;
+      opacity: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 42%,
+        rgba(255, 255, 255, 0.07) 48%,
+        rgba(167, 139, 250, 0.22) 50%,
+        rgba(255, 255, 255, 0.06) 52%,
+        transparent 58%
+      );
+      transform: translateX(-120%);
+    }
+
+    #grain {
+      z-index: 6;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    }
+
+    .titles {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      transform-style: preserve-3d;
+    }
+
+    .title {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(100% - var(--safe-x) * 2);
+      max-width: 936px;
+      text-align: center;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.12), 0 0 80px rgba(103, 232, 249, 0.08);
+      opacity: 0;
+      filter: blur(12px);
+    }
+
+    .title .line { display: block; overflow: hidden; }
+
+    .title .chars {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.02em;
+    }
+
+    .title .char {
+      display: inline-block;
+      will-change: transform, opacity, filter;
+      transform-origin: 50% 50%;
+      opacity: 0;
+      transform: translateY(28px) scale(0.88);
+      filter: blur(8px);
+    }
+
+    .title--ds {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12em;
+    }
+
+    .title--ds .line .chars {
+      gap: 0.06em;
+    }
+
+    .title--curiosity {
+      font-size: 108px;
+      line-height: 1.02;
+      letter-spacing: 0.12em;
+      text-shadow:
+        0 0 50px rgba(236, 72, 153, 0.35),
+        0 0 90px rgba(167, 139, 250, 0.25);
+    }
+
+    .title--research { font-size: 88px; line-height: 1.05; letter-spacing: 0.14em; }
+
+    .title--ds {
+      font-size: 96px;
+      line-height: 1.06;
+      letter-spacing: 0.1em;
+      text-shadow:
+        0 0 55px rgba(52, 211, 153, 0.4),
+        0 0 100px rgba(34, 211, 238, 0.28);
+    }
+
+    .title--hero .char {
+      transform-style: preserve-3d;
+    }
+
+    #questionMark {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.2);
+      font-size: 120px;
+      font-weight: 600;
+      color: #fff;
+      opacity: 0;
+      z-index: 3;
+      text-shadow: 0 0 24px rgba(251, 113, 133, 0.9), 0 0 60px rgba(167, 139, 250, 0.65);
+      filter: blur(6px);
+    }
+
+    #halo {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 720px;
+      height: 720px;
+      margin: -360px 0 0 -360px;
+      border-radius: 50%;
+      z-index: 2;
+      opacity: 0;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.35) 0%, rgba(34, 211, 238, 0.18) 28%, transparent 68%);
+      filter: blur(8px);
+    }
+
+    .full-btn {
+      position: fixed;
+      right: max(22px, env(safe-area-inset-right));
+      bottom: max(22px, env(safe-area-inset-bottom));
+      z-index: 100;
+      width: 54px;
+      height: 54px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background: rgba(215, 231, 255, 0.92);
+      color: #1e1b2e;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .full-btn:hover { transform: scale(1.06); }
+    .full-btn:active { transform: scale(0.96); }
+    .full-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+    html:fullscreen .full-btn,
+    html:-webkit-full-screen .full-btn,
+    :fullscreen .full-btn,
+    :-webkit-full-screen .full-btn {
+      display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #grain { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="stage" aria-hidden="true">
+      <canvas id="bgCanvas" width="1080" height="1920"></canvas>
+      <div id="camera">
+        <canvas id="fxCanvas" width="1080" height="1920"></canvas>
+        <div id="halo"></div>
+        <div id="questionMark">?</div>
+        <div class="titles">
+          <div class="title title--curiosity title--hero" id="tCuriosity"></div>
+          <div class="title title--research" id="tResearch"></div>
+          <div class="title title--ds title--hero" id="tDS">
+            <span class="line" data-line="DATA"></span>
+            <span class="line" data-line="SCIENCE"></span>
+          </div>
+        </div>
+      </div>
+      <div id="vignette"></div>
+      <div id="sweep"></div>
+      <div id="grain"></div>
+    </div>
+
+    <button class="full-btn" id="btnFull" type="button" title="Fullscreen" aria-label="Fullscreen">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 9V4h5v2H6v3H4zm10-5h5v5h-2V6h-3V4zM4 15h2v3h3v2H4v-5zm14 3h-3v2h5v-5h-2v3z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+  (function () {
+    const CONFIG = { DURATION: 10, LOOP_GAP: 0.55, WIDTH: 1080, HEIGHT: 1920, PARTICLE_COUNT: 920, SEED: 0xda7a5c };
+    const params = new URLSearchParams(location.search);
+
+    const STAGE = document.getElementById("stage");
+    const CAMERA = document.getElementById("camera");
+    const bgCanvas = document.getElementById("bgCanvas");
+    const fxCanvas = document.getElementById("fxCanvas");
+    const bgCtx = bgCanvas.getContext("2d");
+    const fxCtx = fxCanvas.getContext("2d");
+    const halo = document.getElementById("halo");
+    const qMark = document.getElementById("questionMark");
+    const sweep = document.getElementById("sweep");
+
+    const titles = {
+      curiosity: document.getElementById("tCuriosity"),
+      research: document.getElementById("tResearch"),
+      ds: document.getElementById("tDS"),
+    };
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const shouldAutoplay = params.get("autoplay") !== "false";
+    const wantFullscreen = params.get("fullscreen") === "true";
+
+    const bgState = { c1: [18, 8, 31], c2: [88, 28, 120], c3: [251, 113, 133], grid: 0, circuit: 0, nodes: 0 };
+    const stream = { p: 0 };
+
+    let particles = [], ambient = [], network = [], master = null, raf = 0;
+    let morphProgress = 0, morphFrom = null, morphTo = null, activeScene = "idle";
+    let charSets = {}, layouts = {};
+
+    function mulberry32(a) {
+      return function () {
+        let t = (a += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    const rand = mulberry32(CONFIG.SEED);
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    function scaleStage() {
+      const scale = Math.max(
+        window.innerWidth / CONFIG.WIDTH,
+        window.innerHeight / CONFIG.HEIGHT
+      );
+      STAGE.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      STAGE.style.left = "50%";
+      STAGE.style.top = "50%";
+      STAGE.style.margin = "0";
+    }
+
+    function buildChars(el, text) {
+      el.innerHTML = "";
+      const wrap = document.createElement("span");
+      wrap.className = "chars";
+      text.split("").forEach((ch) => {
+        const s = document.createElement("span");
+        s.className = "char";
+        s.textContent = ch === " " ? "\u00a0" : ch;
+        wrap.appendChild(s);
+      });
+      el.appendChild(wrap);
+      return [...wrap.querySelectorAll(".char")];
+    }
+
+    function buildMultiline(el) {
+      const chars = [];
+      el.querySelectorAll(".line").forEach((line) => {
+        const text = line.dataset.line;
+        line.innerHTML = "";
+        const wrap = document.createElement("span");
+        wrap.className = "chars";
+        text.split("").forEach((ch) => {
+          const s = document.createElement("span");
+          s.className = "char";
+          s.textContent = ch;
+          wrap.appendChild(s);
+        });
+        line.appendChild(wrap);
+        chars.push(...wrap.querySelectorAll(".char"));
+      });
+      return chars;
+    }
+
+    function sampleLayout(layout) {
+      const c = document.createElement("canvas");
+      c.width = CONFIG.WIDTH;
+      c.height = CONFIG.HEIGHT;
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff";
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.font = `700 ${layout.size}px "Space Grotesk", sans-serif`;
+      const cx = CONFIG.WIDTH / 2;
+      const cy = CONFIG.HEIGHT * 0.5;
+
+      if (layout.lines) {
+        const lh = layout.size * layout.lineHeight;
+        const startY = cy - ((layout.lines.length - 1) * lh) / 2;
+        layout.lines.forEach((line, i) => {
+          const ls = layout.letterSpacing || 0;
+          const widths = [...line].map((ch) => g.measureText(ch).width);
+          const total = widths.reduce((a, b) => a + b, 0) + ls * (line.length - 1);
+          let x = cx - total / 2;
+          const y = startY + i * lh;
+          [...line].forEach((ch, j) => {
+            g.fillText(ch, x + widths[j] / 2, y);
+            x += widths[j] + ls;
+          });
+        });
+      } else {
+        g.fillText(layout.text, cx, cy);
+      }
+
+      const { data } = g.getImageData(0, 0, c.width, c.height);
+      const step = layout.step || 5;
+      const pts = [];
+      for (let y = 0; y < c.height; y += step) {
+        for (let x = 0; x < c.width; x += step) {
+          if (data[(y * c.width + x) * 4 + 3] > 140) pts.push({ x, y });
+        }
+      }
+      return pts;
+    }
+
+    function rebuildTextData() {
+      charSets = {
+        curiosity: buildChars(titles.curiosity, "CURIOSITY"),
+        research: buildChars(titles.research, "RESEARCH"),
+        ds: buildMultiline(titles.ds),
+      };
+      layouts = {
+        curiosity: sampleLayout({ text: "CURIOSITY", size: 108, step: 5 }),
+        research: sampleLayout({ text: "RESEARCH", size: 88, step: 5 }),
+        ds: sampleLayout({ lines: ["DATA", "SCIENCE"], size: 96, lineHeight: 1.06, letterSpacing: 8, step: 5 }),
+      };
+    }
+
+    function pickTargets(name) {
+      const pts = layouts[name];
+      const out = [];
+      for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+        const p = pts[i % pts.length];
+        out.push({ x: p.x + (rand() - 0.5) * 3, y: p.y + (rand() - 0.5) * 3 });
+      }
+      return out;
+    }
+
+    function initParticles() {
+      particles = Array.from({ length: CONFIG.PARTICLE_COUNT }, () => ({
+        x: CONFIG.WIDTH / 2 + (rand() - 0.5) * 40,
+        y: CONFIG.HEIGHT * 0.5 + (rand() - 0.5) * 40,
+        size: 1.2 + rand() * 2.2,
+        hue: rand(),
+        a: 0,
+      }));
+      ambient = Array.from({ length: 140 }, () => ({
+        x: rand() * CONFIG.WIDTH,
+        y: rand() * CONFIG.HEIGHT,
+        r: 1 + rand() * 2.5,
+        sp: 0.15 + rand() * 0.45,
+        ph: rand() * Math.PI * 2,
+        hue: rand(),
+      }));
+      network = Array.from({ length: 18 }, (_, i) => ({
+        x: CONFIG.WIDTH / 2 + Math.cos(i * 0.7) * (120 + rand() * 180),
+        y: CONFIG.HEIGHT * 0.5 + Math.sin(i * 0.9) * (80 + rand() * 120),
+        vx: (rand() - 0.5) * 0.6,
+        vy: (rand() - 0.5) * 0.6,
+      }));
+    }
+
+    function hideAllTitles() {
+      Object.values(titles).forEach((el) => {
+        el.style.opacity = "0";
+        el.style.filter = "blur(12px)";
+      });
+      Object.values(charSets).flat().forEach((c) => {
+        gsap.set(c, { opacity: 0, x: 0, y: 28, z: 0, rotation: 0, scale: 0.88, filter: "blur(8px)" });
+        delete c.dataset.restY;
+        delete c.dataset.restRot;
+      });
+    }
+
+    function showTitle(key, visible) {
+      titles[key].style.opacity = visible ? "1" : "0";
+      titles[key].style.filter = visible ? "blur(0px)" : "blur(12px)";
+    }
+
+    function drawBackground(t) {
+      const w = CONFIG.WIDTH, h = CONFIG.HEIGHT;
+      bgCtx.clearRect(0, 0, w, h);
+      const g = bgCtx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, `rgb(${bgState.c1.join(",")})`);
+      g.addColorStop(0.55, `rgb(${bgState.c2.join(",")})`);
+      g.addColorStop(1, `rgb(${bgState.c3.join(",")})`);
+      bgCtx.fillStyle = g;
+      bgCtx.fillRect(0, 0, w, h);
+
+      if (bgState.grid > 0.01) {
+        bgCtx.save();
+        bgCtx.globalAlpha = 0.14 * bgState.grid;
+        bgCtx.strokeStyle = "rgba(103, 232, 249, 0.55)";
+        const gap = 56;
+        for (let x = 0; x < w; x += gap) {
+          bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); bgCtx.stroke();
+        }
+        for (let y = 0; y < h; y += gap) {
+          bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+        }
+        bgCtx.restore();
+      }
+
+      if (bgState.circuit > 0.01) {
+        bgCtx.save();
+        bgCtx.globalAlpha = 0.35 * bgState.circuit;
+        bgCtx.strokeStyle = "rgba(56, 189, 248, 0.7)";
+        for (let i = 0; i < 6; i++) {
+          const y = h * 0.32 + i * 90;
+          bgCtx.beginPath();
+          bgCtx.moveTo(80, y);
+          bgCtx.lineTo(w * 0.35, y);
+          bgCtx.lineTo(w * 0.38, y + 40);
+          bgCtx.lineTo(w * 0.72, y + 40);
+          bgCtx.lineTo(w * 0.76, y - 20);
+          bgCtx.lineTo(w - 60, y - 20);
+          bgCtx.stroke();
+        }
+        bgCtx.restore();
+      }
+
+      if (bgState.nodes > 0.01) {
+        const spread = 1 + Math.sin(t * 2) * 0.08;
+        bgCtx.save();
+        bgCtx.globalAlpha = 0.5 * bgState.nodes;
+        bgCtx.strokeStyle = "rgba(167, 139, 250, 0.65)";
+        network.forEach((n, i) => {
+          n.x += n.vx * spread;
+          n.y += n.vy * spread;
+          if (n.x < 120 || n.x > w - 120) n.vx *= -1;
+          if (n.y < 280 || n.y > h - 280) n.vy *= -1;
+          const m = network[(i + 3) % network.length];
+          bgCtx.beginPath();
+          bgCtx.moveTo(n.x, n.y);
+          bgCtx.lineTo(m.x, m.y);
+          bgCtx.stroke();
+        });
+        network.forEach((n) => {
+          bgCtx.beginPath();
+          bgCtx.fillStyle = "rgba(196, 181, 253, 0.9)";
+          bgCtx.arc(n.x, n.y, 3.5, 0, Math.PI * 2);
+          bgCtx.fill();
+        });
+        bgCtx.restore();
+      }
+    }
+
+    function particleColor(hue, scene) {
+      if (scene === "curiosity") return `hsla(${280 + hue * 60}, 90%, 72%,`;
+      if (scene === "cs") return `hsla(${190 + hue * 40}, 95%, 68%,`;
+      if (scene === "research") return `hsla(${255 + hue * 30}, 85%, 70%,`;
+      return `hsla(${155 + hue * 50}, 90%, 65%,`;
+    }
+
+    function drawFx(time) {
+      const w = CONFIG.WIDTH, h = CONFIG.HEIGHT;
+      fxCtx.clearRect(0, 0, w, h);
+
+      ambient.forEach((a) => {
+        a.y -= a.sp;
+        a.x += Math.sin(time * 0.8 + a.ph) * 0.25;
+        if (a.y < -10) a.y = h + 10;
+        const col = particleColor(a.hue, activeScene);
+        fxCtx.beginPath();
+        fxCtx.fillStyle = `${col} 0.25)`;
+        fxCtx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        fxCtx.fill();
+      });
+
+      const morphing = morphFrom && morphTo && morphProgress > 0 && morphProgress < 1;
+      particles.forEach((p, i) => {
+        let x = p.x, y = p.y, alpha = p.a;
+
+        if (morphing) {
+          const f = morphFrom[i], t = morphTo[i];
+          x = lerp(f.x, t.x, morphProgress);
+          y = lerp(f.y, t.y, morphProgress);
+          alpha = Math.max(alpha, 0.35 + 0.55 * (1 - Math.abs(morphProgress - 0.5) * 1.2));
+        } else if (stream.p > 0) {
+          const angle = stream.p * 4 + i * 0.02;
+          x = lerp(p.x, w / 2, stream.p * 0.85) + Math.cos(angle) * (120 * (1 - stream.p));
+          y = lerp(p.y, h * 0.5, stream.p * 0.9) + Math.sin(angle * 1.3) * (80 * (1 - stream.p));
+          alpha = Math.max(alpha, 0.5 * stream.p);
+        }
+
+        const col = particleColor(p.hue, activeScene);
+        fxCtx.beginPath();
+        fxCtx.fillStyle = `${col} ${alpha})`;
+        fxCtx.arc(x, y, p.size, 0, Math.PI * 2);
+        fxCtx.fill();
+        if (alpha > 0.35) {
+          fxCtx.beginPath();
+          fxCtx.fillStyle = `${col} ${alpha * 0.15})`;
+          fxCtx.arc(x, y, p.size * 3.2, 0, Math.PI * 2);
+          fxCtx.fill();
+        }
+      });
+    }
+
+    function renderLoop() {
+      drawBackground(master ? master.time() : 0);
+      drawFx(master ? master.time() : 0);
+      raf = requestAnimationFrame(renderLoop);
+    }
+
+    function tweenBg(c1, c2, c3, dur) {
+      return gsap.to(bgState, {
+        c1: [...c1], c2: [...c2], c3: [...c3],
+        duration: dur, ease: "power2.inOut",
+      });
+    }
+
+    function staggerChars(chars, show, dur = 0.55) {
+      return gsap.to(chars, {
+        opacity: show ? 1 : 0,
+        y: show ? 0 : 24,
+        scale: show ? 1 : 0.9,
+        filter: show ? "blur(0px)" : "blur(8px)",
+        duration: dur * 0.7,
+        stagger: show ? 0.035 : 0.02,
+        ease: show ? "expo.out" : "power2.in",
+      });
+    }
+
+    function prepFlyChars(chars, hero) {
+      chars.forEach((el, i) => {
+        const angle = (i / chars.length) * Math.PI * 2 + rand() * 0.4;
+        const dist = hero ? 520 + rand() * 380 : 280 + rand() * 220;
+        gsap.set(el, {
+          opacity: 0,
+          x: Math.cos(angle) * dist,
+          y: Math.sin(angle) * dist * 0.65,
+          z: hero ? -120 + rand() * 240 : 0,
+          rotation: (rand() - 0.5) * (hero ? 140 : 70),
+          scale: hero ? 0.15 : 0.35,
+          filter: "blur(14px)",
+        });
+      });
+    }
+
+    function flyInChars(chars, hero = false) {
+      prepFlyChars(chars, hero);
+      return gsap.to(chars, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        z: 0,
+        rotation: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: hero ? 1.38 : 1.05,
+        stagger: hero ? 0.078 : 0.052,
+        ease: "power2.out",
+      });
+    }
+
+    function flyOutChars(chars, hero = false) {
+      return gsap.to(chars, {
+        opacity: 0,
+        x: (i) => (i % 2 ? 1 : -1) * (hero ? 420 : 260) + (rand() - 0.5) * 180,
+        y: (i) => (rand() - 0.5) * (hero ? 320 : 200),
+        rotation: (i) => (i % 2 ? 1 : -1) * (hero ? 55 : 35),
+        scale: 0.15,
+        filter: "blur(12px)",
+        duration: hero ? 0.88 : 0.62,
+        stagger: 0.028,
+        ease: "power2.in",
+      });
+    }
+
+    function floatChars(chars, t = 0) {
+      return gsap.to(chars, {
+        y: (i) => Math.sin(i * 0.7 + t) * 10,
+        rotation: (i) => Math.sin(i * 0.5) * 4,
+        duration: 1.2,
+        stagger: 0.05,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: 1,
+      });
+    }
+
+    function smoothInChars(chars) {
+      chars.forEach((el) => {
+        gsap.set(el, { opacity: 0, x: 0, y: 32, scale: 0.94, rotation: 0, filter: "blur(10px)" });
+      });
+      return gsap.to(chars, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.08,
+        stagger: 0.055,
+        ease: "power2.out",
+      });
+    }
+
+    function dsLineGroups() {
+      return [...titles.ds.querySelectorAll(".line")].map((line) => [...line.querySelectorAll(".char")]);
+    }
+
+    function arcOffsets(lineLen, spread, tilt) {
+      const out = [];
+      for (let i = 0; i < lineLen; i++) {
+        const t = lineLen <= 1 ? 0 : (i / (lineLen - 1)) * 2 - 1;
+        out.push({
+          y: -Math.cos(t * 0.85) * spread + spread * 0.3,
+          rot: t * tilt,
+        });
+      }
+      return out;
+    }
+
+    function arcFlyInDataScience() {
+      const groups = dsLineGroups();
+      const tl = gsap.timeline();
+      const spreads = [24, 28];
+      const tilts = [5.5, 4.5];
+
+      groups.forEach((chars, lineIdx) => {
+        const arc = arcOffsets(chars.length, spreads[lineIdx] || 24, tilts[lineIdx] || 5);
+        chars.forEach((el, i) => {
+          const { y: restY, rot: restRot } = arc[i];
+          el.dataset.restY = String(restY);
+          el.dataset.restRot = String(restRot);
+          const side = i % 2 === 0 ? -1 : 1;
+          const dist = 260 + Math.abs(i - (chars.length - 1) / 2) * 22;
+          gsap.set(el, {
+            opacity: 0,
+            x: side * dist,
+            y: restY + 120 + lineIdx * 36,
+            rotation: restRot + side * 18,
+            scale: 0.78,
+            filter: "blur(11px)",
+          });
+        });
+
+        tl.to(
+          chars,
+          {
+            opacity: 1,
+            x: 0,
+            y: (i) => arc[i].y,
+            rotation: (i) => arc[i].rot,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: 1.18,
+            stagger: { each: 0.056, from: "center" },
+            ease: "power2.out",
+          },
+          lineIdx * 0.14
+        );
+      });
+
+      return tl;
+    }
+
+    function floatArcDataScience(chars) {
+      return gsap.to(chars, {
+        y: (i, el) => {
+          const base = parseFloat(el.dataset.restY || "0");
+          return base + Math.sin(i * 0.62 + 0.4) * 5;
+        },
+        rotation: (i, el) => {
+          const base = parseFloat(el.dataset.restRot || "0");
+          return base + Math.sin(i * 0.45) * 1.8;
+        },
+        duration: 1.05,
+        stagger: 0.042,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: 1,
+      });
+    }
+
+    function morphScene(from, to, dur) {
+      const prog = { v: 0 };
+      return gsap.timeline()
+        .add(() => {
+          activeScene = from;
+          morphFrom = pickTargets(from);
+          morphTo = pickTargets(to);
+          showTitle(from, false);
+        })
+        .add(flyOutChars(charSets[from], from === "curiosity" || from === "ds"), 0)
+        .to(prog, {
+          v: 1,
+          duration: dur,
+          ease: "power2.inOut",
+          onStart: () => { morphProgress = 0; },
+          onUpdate: () => { morphProgress = prog.v; },
+        })
+        .add(() => {
+          morphProgress = 0;
+          morphFrom = null;
+          morphTo = null;
+          activeScene = to;
+        });
+    }
+
+    function buildTimeline() {
+      if (master) master.kill();
+      hideAllTitles();
+      gsap.set(qMark, { opacity: 0, scale: 0.2, filter: "blur(8px)" });
+      gsap.set(halo, { opacity: 0, scale: 0.6 });
+      gsap.set(sweep, { opacity: 0, x: "-120%" });
+      gsap.set(CAMERA, { scale: 1 });
+      bgState.c1 = [18, 8, 31];
+      bgState.c2 = [88, 28, 120];
+      bgState.c3 = [251, 113, 133];
+      bgState.grid = 0;
+      bgState.circuit = 0;
+      bgState.nodes = 0;
+      stream.p = 0;
+      morphProgress = 0;
+      activeScene = "curiosity";
+      particles.forEach((p) => { p.a = 0.15; });
+
+      const D = CONFIG.DURATION;
+      const morphDs = { v: 0 };
+
+      master = gsap.timeline({
+        paused: !shouldAutoplay && !reduced,
+        defaults: { ease: "power2.inOut" },
+        onComplete: () => {
+          if (!reduced) gsap.delayedCall(CONFIG.LOOP_GAP, restart);
+        },
+      });
+
+      master
+        .to(qMark, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.68, ease: "power2.out" }, 0.15)
+        .to(qMark, { scale: 4.2, opacity: 0, filter: "blur(12px)", duration: 0.78, ease: "power2.in" }, 0.95)
+        .add(() => showTitle("curiosity", true), 1.22)
+        .add(flyInChars(charSets.curiosity, true), 1.3)
+        .add(floatChars(charSets.curiosity, 0.12), 3.15)
+        .to({}, { duration: 1.65 }, 2.65)
+        .to(CAMERA, { scale: 1.07, duration: 1.35, ease: "power1.inOut" }, 0.9)
+        .to(particles, { a: 0.48, duration: 1.05, stagger: { each: 0.0012, from: "random" } }, 0.65)
+
+        .add(morphScene("curiosity", "research", 1.15), 4.15)
+        .add(tweenBg([15, 10, 42], [49, 46, 129], [129, 140, 248], 1.25), 4.22)
+        .to(bgState, { nodes: 1, duration: 0.9, ease: "power2.inOut" }, 4.4)
+        .to(bgState, { nodes: 0.42, duration: 0.62, ease: "power2.inOut" }, 5.35)
+        .fromTo(sweep, { x: "-120%", opacity: 0 }, { x: "120%", opacity: 0.55, duration: 0.78, ease: "power2.inOut" }, 4.85)
+        .to(sweep, { opacity: 0, duration: 0.28 }, 5.58)
+        .add(() => showTitle("research", true), 5.18)
+        .add(smoothInChars(charSets.research), 5.22)
+        .to({}, { duration: 0.72 }, 6.05)
+        .to(CAMERA, { scale: 1.05, duration: 0.75, ease: "power2.inOut" }, 4.65)
+
+        .add(() => showTitle("research", false), 6.82)
+        .to(charSets.research, { opacity: 0, y: -16, duration: 0.48, stagger: 0.016, ease: "power2.in" }, 6.82)
+        .add(() => {
+          activeScene = "ds";
+          morphFrom = pickTargets("research");
+          morphTo = pickTargets("ds");
+        }, 6.88)
+        .to(morphDs, {
+          v: 1,
+          duration: 1.05,
+          ease: "power2.inOut",
+          onStart: () => { morphProgress = 0; },
+          onUpdate: () => { morphProgress = morphDs.v; },
+          onComplete: () => { morphFrom = null; morphTo = null; morphProgress = 0; },
+        }, 6.88)
+        .to(stream, { p: 1, duration: 0.78, ease: "power2.inOut" }, 6.98)
+        .to(stream, { p: 0, duration: 0.38, ease: "power2.inOut" }, 7.72)
+        .add(tweenBg([6, 32, 36], [16, 120, 110], [52, 211, 153], 1.1), 6.95)
+        .to(bgState, { nodes: 0, grid: 0, circuit: 0, duration: 0.62 }, 6.95)
+        .add(() => showTitle("ds", true), 7.68)
+        .add(arcFlyInDataScience(), 7.72)
+        .add(floatArcDataScience(charSets.ds), 8.72)
+        .to(halo, { opacity: 1, scale: 1.1, duration: 0.95, ease: "power2.out" }, 7.82)
+        .to(CAMERA, { scale: 1.1, duration: 0.85, ease: "power2.out" }, 7.88)
+        .to(particles, { a: 0.58, duration: 0.52 }, 7.82)
+        .to({}, { duration: D - 9.15 }, 9.15);
+
+      master.duration(D);
+      return master;
+    }
+
+    function restart() {
+      if (master) master.kill();
+      rebuildTextData();
+      buildTimeline();
+      if (!reduced) master.play(0);
+      else {
+        showTitle("ds", true);
+        charSets.ds.forEach((el, i) => {
+          const baseY = Math.sin(i * 0.5) * 8;
+          gsap.set(el, { opacity: 1, x: 0, y: baseY, rotation: 0, scale: 1, filter: "blur(0px)" });
+        });
+        master.progress(1).pause();
+      }
+    }
+
+    window.restartDataScienceAnimation = restart;
+    window.getDataScienceDuration = () => CONFIG.DURATION;
+
+    window.addEventListener("resize", scaleStage);
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "r" || e.key === "R") restart();
+    });
+
+    const btnFull = document.getElementById("btnFull");
+
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+
+    btnFull.addEventListener("click", () => {
+      if (isFullscreen()) return;
+      const root = document.documentElement;
+      const enter = root.requestFullscreen || root.webkitRequestFullscreen;
+      if (enter) enter.call(root).catch(() => {});
+    });
+
+    document.fonts.ready.then(() => {
+      initParticles();
+      scaleStage();
+      restart();
+      cancelAnimationFrame(raf);
+      renderLoop();
+      if (wantFullscreen && !reduced) {
+        const root = document.documentElement;
+        const enter = root.requestFullscreen || root.webkitRequestFullscreen;
+        if (enter) enter.call(root).catch(() => {});
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
